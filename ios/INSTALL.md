@@ -66,7 +66,10 @@ iOS 26.6.2; actual on-device acceptance is outstanding.
 
 ## Building without owning a Mac
 
-The GitHub workflow uses a hosted macOS runner. It pins UTM source and the
+The first standalone build targets iOS 26 and later. The GitHub workflow uses
+a hosted Mac with Xcode 27.0, because the pinned UTM source references iOS 27
+APIs behind runtime availability checks. Those features stay inactive on
+iOS 26. It pins UTM source and the
 matching prebuilt iOS dependency artifact in `ios/upstream.json`. If that
 upstream artifact expires, replace the pin with a reviewed matching source
 and dependency build; do not silently combine unrelated versions.

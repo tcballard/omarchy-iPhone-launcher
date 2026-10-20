@@ -8,7 +8,7 @@ permissions:
   contents: read
 concurrency:
   group: iphone-app-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   installer-tests:
     runs-on: macos-26
@@ -73,8 +73,10 @@ jobs:
           gh release create iphone-image-v0.1.0-dev .build/payload/* --target a170a8e58e7f94381f5e08bc6aaf73e54d1697c7 --prerelease --title 'iPhomarchy development image' --notes "Verified disk built with the packager recipe at a170a8e58e7f94381f5e08bc6aaf73e54d1697c7. Split and verified by launcher build $GITHUB_SHA. Physical iPhone desktop testing is outstanding. These are disk-image parts, not an installable app."
   app:
     needs: installer-tests
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -1,7 +1,8 @@
 # Validation — 20 October 2026 UTC
 
 This is a development prototype. No physical iPhone or iOS Simulator is
-attached to this environment. No iOS application was compiled or signed.
+attached to this environment. The standalone app was compiled and packaged
+on a hosted Mac. It has not been development-signed or tested on a phone.
 
 ## Source and disk integrity
 
@@ -81,7 +82,7 @@ No timing from this x86-to-ARM test should be treated as an iPhone benchmark.
 
 ## Acceptance still required on a phone
 
-1. Import the complete bundle in the named UTM version and confirm JIT.
+1. Install the signed standalone app, complete its image download and confirm JIT.
 2. Reach and complete Omarchy's owner setup, then boot Hyprland/Quattro.
 3. Confirm visible cursor, touch input, modifier shortcuts and terminal launch.
 4. Verify outgoing networking, disk persistence and clean shutdown/restart.
@@ -90,9 +91,31 @@ No timing from this x86-to-ARM test should be treated as an iPhone benchmark.
 No item in this phone acceptance list has passed yet. A successful Linux
 boot in local emulation is narrower evidence than a usable iPhone desktop.
 
-## Delivery
+## Standalone iOS app build
 
-The 3.9 GB single-file upload failed; the source and quickstart saved
-successfully. The supplied assembly kit therefore uses nine 450 MiB-or-smaller
-parts. Assembly is checked against the exact full ZIP SHA-256. The assembler
-requires a Mac or Linux computer before transfer to the phone.
+- UTM 5.0.8 source and matching prebuilt iOS dependencies are pinned.
+- Hosted Xcode 27.0 builds an ARM64 archive with an iOS 26.0 minimum target.
+  Apple's Metal toolchain is explicitly installed for CocoaSpice shaders.
+- [Build 39366981837](https://github.com/tcballard/omarchy-iPhone-launcher/actions/runs/39366981837)
+  passed all three jobs: image publication, native installer tests and the
+  full app archive/package. Its artifact contains the unsigned IPA and archive.
+- All five Node tests pass, including byte-exact reconstruction across image
+  part boundaries, part hashes and refusal to overwrite existing output.
+- Native Swift installer tests passed on macOS 26.6.2: successful install,
+  overwrite protection, part and whole-disk integrity failures, cleanup of
+  failed installations, fresh identities and download URL validation.
+- QCOW2 image SHA-256:
+  `c6d6c53b920af1f88c46890ea17923b1ced81a6c9f6b31517495316a31862745`.
+  A clean CI rebuild matched the disk and all four part hashes. GitHub's
+  published asset digests independently matched `ios/image-manifest.json`.
+- The separate signing workflow has only received shell syntax validation.
+  A real certificate/profile export, first launch, installer network flow,
+  JIT activation and desktop operation on a phone remain untested.
+
+## Original manual VM handoff
+
+The manual assembly kit uses nine 450 MiB-or-smaller parts and checks the
+exact full ZIP SHA-256. Its assembler requires a Mac or Linux computer before
+transfer to the phone. The standalone app downloads four verified disk parts
+directly from this repository's image release and does not require manual
+assembly or a separate UTM installation.

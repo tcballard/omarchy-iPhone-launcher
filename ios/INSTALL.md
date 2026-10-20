@@ -11,7 +11,10 @@ Open this repository's **Actions → iPhone development app** and select a
 successful run on `codex/standalone-iphone`. Download
 `iPhomarchy-development-app`. It contains an unsigned IPA, an Xcode archive
 and these instructions. The app downloads its matching, verified image from
-the development image release on first launch.
+the development image release on first launch. `ios/image-manifest.json` pins
+the exact QCOW2 disk and part hashes. The image workflow must publish that
+release successfully before the in-app download can work. App compilation is
+independent so image publication errors do not conceal compiler results.
 
 ## Paid Apple Developer account
 

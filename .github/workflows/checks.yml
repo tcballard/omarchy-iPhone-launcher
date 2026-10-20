@@ -18,6 +18,7 @@ jobs:
           node --check scripts/config.mjs
           node --check ios/scripts/payload.mjs
           node --check ios/scripts/apply-overlay.mjs
+          node --check ios/scripts/check-payload.mjs
       - name: Run packager tests
         run: npm test
       - name: Check assembly script

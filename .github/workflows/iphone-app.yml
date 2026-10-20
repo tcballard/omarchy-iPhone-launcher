@@ -1,0 +1,120 @@
+name: iPhone development app
+on:
+  push:
+    branches: [codex/standalone-iphone]
+    paths: ['ios/**', 'scripts/**', 'source-lock.json', '.github/workflows/iphone-app.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: iphone-app-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  installer-tests:
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test native installer
+        run: |
+          mkdir -p .build
+          swiftc -parse-as-library ios/OmarchyInstaller.swift ios/tests/InstallerTests.swift -o .build/installer-tests
+          .build/installer-tests
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check for the pinned image release
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view iphone-image-v0.1.0-dev >/dev/null 2>&1; then
+            echo 'found=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'found=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Make space for the factory image
+        if: steps.existing.outputs.found != 'true'
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc
+          df -h .
+      - name: Install packager tools
+        if: steps.existing.outputs.found != 'true'
+        run: sudo apt-get update && sudo apt-get install -y zstd qemu-utils zip
+      - name: Build verified VM image
+        if: steps.existing.outputs.found != 'true'
+        run: node scripts/build.mjs
+      - name: Prepare phone downloads
+        if: steps.existing.outputs.found != 'true'
+        run: |
+          rm -rf .cache dist/iPhomarchy.utm.zip
+          node ios/scripts/payload.mjs dist/iPhomarchy.utm .build/payload iphone-image-v0.1.0-dev
+          node ios/scripts/check-payload.mjs ios/image-manifest.json .build/payload/manifest.json
+          cp ios/image-manifest.json .build/payload/manifest.json
+      - uses: actions/upload-artifact@v4
+        if: steps.existing.outputs.found != 'true'
+        with:
+          name: verified-phone-image
+          path: .build/payload/*
+          compression-level: 0
+          retention-days: 7
+      - name: Publish development image assets
+        if: steps.existing.outputs.found != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create iphone-image-v0.1.0-dev .build/payload/* --target a170a8e58e7f94381f5e08bc6aaf73e54d1697c7 --prerelease --title 'iPhomarchy development image' --notes "Verified disk built with the packager recipe at a170a8e58e7f94381f5e08bc6aaf73e54d1697c7. Split and verified by launcher build $GITHUB_SHA. Physical iPhone desktop testing is outstanding. These are disk-image parts, not an installable app."
+  app:
+    needs: installer-tests
+    runs-on: xcode-27
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Apple Metal compiler
+        run: xcodebuild -downloadComponent MetalToolchain
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/checkout@v4
+        with:
+          repository: utmapp/UTM
+          ref: 535d6592a8bdc22b48de53703a371b80bf60d587
+          submodules: recursive
+          path: .build/UTM
+      - name: Download matching prebuilt UTM dependencies
+        uses: actions/download-artifact@v4
+        with:
+          name: Sysroot-ios-arm64
+          repository: utmapp/UTM
+          run-id: 38996133972
+          github-token: ${{ github.token }}
+          path: .build/sysroot
+      - name: Stage dependencies and launcher
+        run: |
+          tar -xzf .build/sysroot/sysroot.tgz -C .build/UTM
+          node ios/scripts/apply-overlay.mjs .build/UTM ios/image-manifest.json
+      - name: Build standalone iPhone app
+        working-directory: .build/UTM
+        run: ./scripts/build_utm.sh -k iphoneos -s iOS -a arm64 -o "$RUNNER_TEMP/iPhomarchy"
+      - name: Package for development signing
+        run: |
+          bash ios/scripts/package-unsigned.sh "$RUNNER_TEMP/iPhomarchy.xcarchive" dist
+          cp ios/INSTALL.md dist/INSTALL.md
+          tar -czf dist/iPhomarchy.xcarchive.tgz -C "$RUNNER_TEMP" iPhomarchy.xcarchive
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iPhomarchy-development-app
+          path: |
+            dist/iPhomarchy-unsigned.ipa
+            dist/iPhomarchy.xcarchive.tgz
+            dist/INSTALL.md
+          if-no-files-found: error

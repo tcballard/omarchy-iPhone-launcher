@@ -1,16 +1,22 @@
 # Omarchy iPhone Launcher
 
-Run an experimental ARM64 Omarchy virtual machine locally on an iPhone using
-UTM. Build and prepare it from Omarchy/Linux; no Mac is required.
+An experimental ARM64 Omarchy desktop for iPhone, using UTM's emulator.
+Build it on GitHub or prepare the VM from Linux; no Mac of your own is required.
 
 **Status:** Linux boots to a login console under ARM emulation. The Omarchy
 account setup, Hyprland/Quattro desktop, UTM import and physical iPhone
-compatibility are still unverified. This is a development prototype.
+compatibility are still unverified. The standalone iOS app compiles and its
+installer tests pass. This is a development prototype.
 
-The current project packages [Try Omarchy](https://github.com/omacom/try-omarchy)'s
-ARM64 image into a `.utm` bundle. The phone runs it inside sideloaded UTM with
-JIT, with iOS still running underneath. A dedicated Omarchy iPhone Launcher iOS app is a
-later milestone.
+The project packages [Try Omarchy](https://github.com/omacom/try-omarchy)'s
+ARM64 image into a `.utm` bundle. A standalone **iPhomarchy** development app
+is available as an [unsigned iOS 26+ build](https://github.com/tcballard/omarchy-iPhone-launcher/actions/runs/39366981837/artifacts/12239449578): it includes UTM's emulator,
+downloads and verifies its own Omarchy disk, and provides a Start Omarchy
+button. It runs locally with iOS still underneath. Read the
+[standalone app installation notes](ios/INSTALL.md) for signing, JIT setup
+and build status. No signed app or TestFlight release is available yet.
+Paid Apple Developer accounts can use the separate
+[development signing workflow](docs/signing.md) to prepare an IPA for a registered phone.
 
 ## Build on Omarchy / Arch Linux
 

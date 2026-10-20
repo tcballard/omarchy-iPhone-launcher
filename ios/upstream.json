@@ -1,0 +1,9 @@
+{
+  "repository": "utmapp/UTM",
+  "commit": "535d6592a8bdc22b48de53703a371b80bf60d587",
+  "version": "5.0.8",
+  "sysrootRun": 38996133972,
+  "sysrootArtifact": 12087377615,
+  "sysrootDigest": "d200793cd39b77c459971e024ae37603ea8b47f0cd813240141f0afb9ef40811",
+  "bundlePrefix": "dev.tcballard.iphomarchy"
+}

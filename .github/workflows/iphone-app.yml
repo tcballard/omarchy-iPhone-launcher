@@ -79,6 +79,8 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_27.0.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
+      - name: Install Apple Metal compiler
+        run: xcodebuild -downloadComponent MetalToolchain
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

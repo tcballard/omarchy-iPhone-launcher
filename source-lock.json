@@ -1,0 +1,27 @@
+{
+  "repository": "omacom/try-omarchy",
+  "release": "v1.1.0",
+  "releaseUrl": "https://github.com/omacom/try-omarchy/releases/tag/v1.1.0",
+  "sourceCommitInspected": "4ec7f964985800b58293c814ff4f1f190a047679",
+  "utmSchemaCommit": "535d6592a8bdc22b48de53703a371b80bf60d587",
+  "imageName": "omarchy-aarch64-edge.img",
+  "imageBytes": 21474836480,
+  "parts": [
+    {
+      "name": "omarchy-aarch64-edge.img.zst.001",
+      "bytes": 1073741824,
+      "sha256": "beca1391acef9746d1562977bc2e1ed18786bcc6dbc1cb2b4dc0369e22b1bc43"
+    },
+    {
+      "name": "omarchy-aarch64-edge.img.zst.002",
+      "bytes": 1073741824,
+      "sha256": "27177741e8c48930f6989ce3bc4e1949f5780457228a0924a77c2913d177e179"
+    },
+    {
+      "name": "omarchy-aarch64-edge.img.zst.003",
+      "bytes": 890854308,
+      "sha256": "d26c44002f16e9fdc41bf4d2efcd3c6a34476b6b312f077d6fdff8f990fca45c"
+    }
+  ],
+  "factorySha256": "1ce5208990dae1f30b0c8757db57b57d404effa967f995b8ea99fb1bfe83aa55"
+}

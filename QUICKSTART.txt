@@ -1,0 +1,55 @@
+iPhomarchy — experimental UTM prototype
+
+This is a real ARM64 Omarchy virtual machine intended to run locally on an
+iPhone inside UTM. It does not replace iOS. iPhone boot and performance have
+not yet been verified. This is not a signed iPhone app or an App Store release.
+
+1. Install standard UTM for iOS and enable JIT using a supported method.
+   Official instructions: https://docs.getutm.app/installation/ios/
+   UTM SE is not the target for this first desktop experiment.
+2. Transfer iPhomarchy.utm.zip to your iPhone. Extract it in Files, then
+   import/open iPhomarchy.utm in UTM. Keep the .utm folder and its Data
+   folder together. If Files treats it as a folder, use UTM's Open/Import
+   action to select it. Import still needs testing on a physical iPhone.
+3. Use landscape. Confirm JIT is active, then press Play.
+4. On first boot, complete Omarchy's account setup with your own name,
+   username and password. There is no preset login. Keyboard controls are
+   available from UTM's toolbar. Initial setup can take several minutes;
+   no iPhone timings have been measured.
+5. For Omarchy shortcuts, use the UTM keyboard accessory modifier keys:
+   Super/Windows (usually shown as Command on Apple keyboards) + Return
+   opens a terminal; Super + Space opens the launcher. Confirm the key
+   mapping on your UTM version. A Bluetooth keyboard is helpful.
+6. Shut down from inside Omarchy before closing UTM. Keep the app in the
+   foreground during setup. iOS can stop a VM when memory is tight.
+
+Defaults: 2 virtual CPU cores, 2048 MiB RAM, 128 MiB JIT cache, 1280 x 720
+virtual display, VirGL GPU, user-mode NAT networking. No incoming ports are
+forwarded. No shared folders, clipboard, USB passthrough or audio are enabled.
+The guest disk is 20 GiB capacity and grows as it is used. Allow at least
+12 GiB for the imported disk, plus the download and extraction/import copies;
+25 GiB free is a sensible starting point. Delete redundant copies only after
+confirming the imported VM works. 2 GiB RAM is an initial experiment, not a
+verified minimum; an iPhone with 8 GiB or more RAM is the best first target.
+
+Black screen / graphics failure:
+- Check JIT, then UTM's global renderer setting. Start with Default; ANGLE
+  (Metal) is another documented backend to test.
+- With the VM stopped, use Display to switch the emulated card to
+  virtio-ramfb (without GL) for a boot-console test. The full desktop may
+  fail or run slowly with that card; this is a diagnostic fallback.
+- Debug logging is enabled; UTM stores debug.log inside the VM's Data folder.
+- Record iPhone model, iOS version, UTM version, JIT method and the last
+  screen before it stops. Share logs only after checking them for personal
+  data entered during account setup.
+
+Known limitations:
+- No physical iPhone or iOS UTM import has been tested by this build.
+- The image still contains Try Omarchy's Mac integration package. Mac Settings
+  and Touch ID menu items cannot control the phone; they are not ported.
+- No measured battery, temperature, touch, audio or background behaviour.
+- ARM64 Omarchy currently follows the upstream edge channel.
+
+Upstream image: https://github.com/omacom/try-omarchy/releases/tag/v1.1.0
+UTM: https://github.com/utmapp/UTM
+This is an unofficial experiment, not an Omarchy or UTM endorsed product.

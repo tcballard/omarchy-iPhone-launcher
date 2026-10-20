@@ -14,6 +14,8 @@ downloads and verifies its own Omarchy disk, and provides a Start Omarchy
 button. It runs locally with iOS still underneath. Read the
 [standalone app installation notes](ios/INSTALL.md) for signing, JIT setup
 and build status. No signed app or TestFlight release is available yet.
+Paid Apple Developer accounts can use the separate
+[development signing workflow](docs/signing.md), once an unsigned build succeeds.
 
 ## Build on Omarchy / Arch Linux
 

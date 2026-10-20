@@ -24,5 +24,7 @@ jobs:
         run: bash -n scripts/Assemble-iPhomarchy.command
       - name: Check app packaging script
         run: bash -n ios/scripts/package-unsigned.sh
+      - name: Check development signing script
+        run: bash -n .github/scripts/sign-iphone.sh
       - name: Check builder help
         run: node scripts/build.mjs --help

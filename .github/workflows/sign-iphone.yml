@@ -1,0 +1,37 @@
+name: Sign iPhone development app
+on:
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Successful iPhone development app workflow run ID
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  sign:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: iPhomarchy-development-app
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+          path: .build/input
+      - name: Extract unsigned archive
+        run: tar -xzf .build/input/iPhomarchy.xcarchive.tgz -C "$RUNNER_TEMP"
+      - name: Sign using development profiles
+        env:
+          APPLE_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_APP_PROFILE_BASE64: ${{ secrets.APPLE_APP_PROFILE_BASE64 }}
+          APPLE_HELPER_PROFILE_BASE64: ${{ secrets.APPLE_HELPER_PROFILE_BASE64 }}
+        run: bash .github/scripts/sign-iphone.sh "$RUNNER_TEMP/iPhomarchy.xcarchive" dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iPhomarchy-signed-development-app
+          path: dist/iPhomarchy-development.ipa
+          if-no-files-found: error

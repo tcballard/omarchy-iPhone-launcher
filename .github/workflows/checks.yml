@@ -16,9 +16,13 @@ jobs:
         run: |
           node --check scripts/build.mjs
           node --check scripts/config.mjs
+          node --check ios/scripts/payload.mjs
+          node --check ios/scripts/apply-overlay.mjs
       - name: Run packager tests
         run: npm test
       - name: Check assembly script
         run: bash -n scripts/Assemble-iPhomarchy.command
+      - name: Check app packaging script
+        run: bash -n ios/scripts/package-unsigned.sh
       - name: Check builder help
         run: node scripts/build.mjs --help

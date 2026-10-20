@@ -7,10 +7,13 @@ UTM. Build and prepare it from Omarchy/Linux; no Mac is required.
 account setup, Hyprland/Quattro desktop, UTM import and physical iPhone
 compatibility are still unverified. This is a development prototype.
 
-The current project packages [Try Omarchy](https://github.com/omacom/try-omarchy)'s
-ARM64 image into a `.utm` bundle. The phone runs it inside sideloaded UTM with
-JIT, with iOS still running underneath. A dedicated Omarchy iPhone Launcher iOS app is a
-later milestone.
+The project packages [Try Omarchy](https://github.com/omacom/try-omarchy)'s
+ARM64 image into a `.utm` bundle. A standalone **iPhomarchy** development app
+is now being built on `codex/standalone-iphone`: it includes UTM's emulator,
+downloads and verifies its own Omarchy disk, and provides a Start Omarchy
+button. It runs locally with iOS still underneath. Read the
+[standalone app installation notes](ios/INSTALL.md) for signing, JIT setup
+and build status. No signed app or TestFlight release is available yet.
 
 ## Build on Omarchy / Arch Linux
 

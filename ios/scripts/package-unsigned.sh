@@ -13,6 +13,7 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 mkdir "$work/Payload"
 python3 "$scripts/complete-framework-metadata.py" "$archive/Products/Applications/UTM.app"
+python3 "$scripts/check-runtime-libraries.py" "$archive/Products/Applications/UTM.app"
 codesign --force --sign - --timestamp=none "$archive/Products/Applications/UTM.app/Extensions/OmarchyJITHelper.appex/Frameworks/StikJIT.framework"
 ditto "$archive/Products/Applications/UTM.app" "$work/Payload/iPhomarchy.app"
 cd "$work"

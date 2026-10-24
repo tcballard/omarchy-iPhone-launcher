@@ -105,7 +105,9 @@ app.frameworks_build_phase.add_file_reference(group.new_file('Dependencies/libom
 app.build_configurations.each do |configuration|
   configuration.build_settings['HEADER_SEARCH_PATHS'] = ['$(inherited)', '$(SRCROOT)/Omarchy/Pairing/include']
   configuration.build_settings['LIBRARY_SEARCH_PATHS'] = ['$(inherited)', '$(SRCROOT)/Omarchy/Dependencies']
-  configuration.build_settings['OTHER_LDFLAGS'] = ['$(inherited)', '-lresolv', '-liconv']
+  # UTM already links its packaged iconv framework. -liconv selects the raw
+  # sysroot dylib, whose install name points to the dependency build machine.
+  configuration.build_settings['OTHER_LDFLAGS'] = ['$(inherited)', '-lresolv']
   configuration.build_settings['EX_ENABLE_EXTENSION_POINT_GENERATION'] = 'YES'
   configuration.build_settings['MARKETING_VERSION'] = '0.2.0'
   configuration.build_settings['CURRENT_PROJECT_VERSION'] = number

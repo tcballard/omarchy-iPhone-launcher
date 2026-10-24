@@ -1,0 +1,12 @@
+{
+  "fill-specializations": [{ "value": { "solid": "srgb:0.10196,0.10588,0.14902,1.00000" } }],
+  "groups": [{
+    "blend-mode": "normal", "hidden": false,
+    "layers": [{ "image-name": "OmarchyMark.svg", "name": "Omarchy", "opacity": 1 }],
+    "lighting": "individual", "opacity": 1,
+    "position": { "scale": 1, "translation-in-points": [0, 0] },
+    "shadow": { "kind": "neutral", "opacity": 0 },
+    "specular": false, "translucency": { "enabled": false, "value": 0 }
+  }],
+  "supported-platforms": { "squares": "shared" }
+}

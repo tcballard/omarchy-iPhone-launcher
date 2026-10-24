@@ -1,0 +1,12 @@
+{
+  "stikJIT": {
+    "version": "1.9.0",
+    "url": "https://github.com/StikDebug/StikJIT/releases/download/1.9.0/StikJIT.xcframework.zip",
+    "sha256": "806664393770c68e75f2b6429955bfdd88cfaad09fec2ba70f8ed615ff90c060",
+    "source": "https://github.com/StikDebug/StikJIT/tree/32287268fa5824f9edce4cb359f5833ce0cf7b00",
+    "license": "MPL-2.0"
+  },
+  "idevice": { "version": "0.1.68", "license": "MIT" },
+  "rust": "1.98.1",
+  "xcodeproj": "1.27.0"
+}

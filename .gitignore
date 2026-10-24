@@ -2,6 +2,7 @@
 dist/
 *.partial
 .build/
+ios/Pairing/target/
 *.p12
 *.p8
 *.mobileprovision

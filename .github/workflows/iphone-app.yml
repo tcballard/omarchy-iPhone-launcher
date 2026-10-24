@@ -1,7 +1,7 @@
 name: iPhone development app
 on:
   push:
-    branches: [codex/standalone-iphone]
+    branches: [codex/standalone-iphone, codex/integrated-iphone]
     paths: ['ios/**', 'scripts/**', 'source-lock.json', '.github/workflows/iphone-app.yml']
   workflow_dispatch:
 permissions:
@@ -20,6 +20,14 @@ jobs:
           mkdir -p .build
           swiftc -parse-as-library ios/OmarchyInstaller.swift ios/tests/InstallerTests.swift -o .build/installer-tests
           .build/installer-tests
+      - name: Test acceleration safeguards
+        run: |
+          swiftc -parse-as-library ios/Integrated/OmarchyJITProtocol.swift ios/Integrated/OmarchyJITLaunchGate.swift ios/Integrated/OmarchyVMPaths.swift ios/LocalTunnel/OmarchyLoopbackPacket.swift ios/tests/AccelerationTests.swift -o .build/acceleration-tests
+          .build/acceleration-tests
+      - name: Test pairing lifecycle
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal
+          cargo +1.98.1 test --locked --manifest-path ios/Pairing/Cargo.toml
   image:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -81,6 +89,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Apple Metal compiler
         run: xcodebuild -downloadComponent MetalToolchain
+      - name: Install integrated build tools
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal --target aarch64-apple-ios
+          gem install --user-install xcodeproj --version 1.27.0 --no-document
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -102,6 +114,7 @@ jobs:
         run: |
           tar -xzf .build/sysroot/sysroot.tgz -C .build/UTM
           node ios/scripts/apply-overlay.mjs .build/UTM ios/image-manifest.json
+          bash ios/scripts/prepare-integrated.sh .build/UTM
       - name: Build standalone iPhone app
         working-directory: .build/UTM
         run: ./scripts/build_utm.sh -k iphoneos -s iOS -a arm64 -o "$RUNNER_TEMP/iPhomarchy"

@@ -28,10 +28,11 @@ info = info.replace('<key>CFBundleName</key>\n\t<string>$(PRODUCT_NAME)</string>
   '<key>CFBundleName</key>\n\t<string>iPhomarchy</string>\n\t<key>CFBundleDisplayName</key>\n\t<string>iPhomarchy</string>');
 info = info.replace('<string>UTM</string>', '<string>iphomarchy</string>');
 await writeFile(join(utm, 'Platform/iOS/Info.plist'), info);
-const buildNumber = process.env.GITHUB_RUN_NUMBER || '1';
-if (!/^[0-9]+$/.test(buildNumber)) throw new Error('Invalid build number.');
+const runNumber = process.env.GITHUB_RUN_NUMBER || '1';
+if (!/^[0-9]+$/.test(runNumber)) throw new Error('Invalid build number.');
+const buildNumber = String(100 + Number(runNumber));
 await writeFile(join(utm, 'CodeSigning.xcconfig'),
-  `PRODUCT_BUNDLE_PREFIX = ${lock.bundlePrefix}\nDEVELOPER_ACCOUNT_PAID = YES\nMARKETING_VERSION = 0.1.0\nCURRENT_PROJECT_VERSION = ${buildNumber}\n`);
+  `PRODUCT_BUNDLE_PREFIX = ${lock.bundlePrefix}\nDEVELOPER_ACCOUNT_PAID = YES\nMARKETING_VERSION = 0.2.0\nCURRENT_PROJECT_VERSION = ${buildNumber}\n`);
 const buildScriptPath = join(utm, 'scripts/build_utm.sh');
 let buildScript = await readFile(buildScriptPath, 'utf8');
 if (!buildScript.includes('CODE_SIGNING_ALLOWED=NO $TEAM_IDENTIFIER_PREFIX'))

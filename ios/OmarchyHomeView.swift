@@ -51,6 +51,7 @@ private final class OmarchySetup: ObservableObject {
 struct OmarchyHomeView: View {
     @EnvironmentObject private var data: UTMData
     @StateObject private var setup = OmarchySetup()
+    @StateObject private var acceleration = OmarchyAcceleration.shared
     @State private var refreshed = false
     @State private var accelerationHelp = false
     private let accent = Color(red: 0.65, green: 0.89, blue: 0.32)
@@ -81,15 +82,24 @@ struct OmarchyHomeView: View {
                 } else if let machine = machine {
                     VStack(alignment: .leading, spacing: 16) {
                         Label("Omarchy is installed", systemImage: "checkmark.circle.fill").foregroundColor(accent)
-                        Text("Enable acceleration before starting. On first boot, Omarchy will help you create your account.")
+                        Text("Acceleration starts automatically after setup. On first boot, Omarchy will help you create your account.")
                             .foregroundColor(.secondary)
                         Button {
-                            data.run(vm: machine)
+                            if acceleration.pairing.isPaired {
+                                acceleration.start(machine: machine, data: data)
+                            } else {
+                                accelerationHelp = true
+                            }
                         } label: {
                             Label("Start Omarchy", systemImage: "play.fill").frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.borderedProminent).tint(accent).foregroundColor(.black)
+                        .disabled(acceleration.isBusy || acceleration.pairing.isPairing)
                         .accessibilityIdentifier("startOmarchy")
+                        if acceleration.isBusy { ProgressView(acceleration.status) }
+                        if let error = acceleration.error {
+                            Text(error).font(.callout).foregroundColor(.orange).textSelection(.enabled)
+                        }
                     }
                 } else if setup.isInstalling {
                     VStack(alignment: .leading, spacing: 14) {
@@ -145,30 +155,7 @@ struct OmarchyHomeView: View {
             }
         }
         .sheet(isPresented: $accelerationHelp) {
-            OmarchyAccelerationHelp()
+            OmarchyAccelerationView(acceleration: acceleration)
         }
-    }
-}
-
-private struct OmarchyAccelerationHelp: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationView {
-            List {
-                Section(header: Text("First-time setup")) {
-                    Text("Install this app with an Apple Development certificate and a provisioning profile that includes this phone.")
-                    Text("Set up StikDebug with your phone’s pairing file and LocalDevVPN. Signing alone does not enable acceleration.")
-                    Text("On iOS 26, use StikDebug’s UTM-compatible script for this app, then return here and start Omarchy. Repeat activation when required after restarting the app or phone.")
-                    Link("Open the current setup guide", destination: URL(string: "https://docs.sidestore.io/docs/advanced/jit")!)
-                }
-                Section(header: Text("About this build")) {
-                    Text("The emulator runs locally. No separate UTM installation is required. This build has not yet been validated on a physical iPhone.")
-                    Text("If startup fails, stop and check the setup guide. iOS updates can change acceleration compatibility.")
-                }
-            }
-            .navigationTitle("Acceleration")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
-        }.navigationViewStyle(.stack)
     }
 }

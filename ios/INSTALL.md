@@ -1,95 +1,92 @@
-# Installing the standalone development app
+# iPhomarchy integrated development app
 
-This is a local Omarchy emulator app based on UTM 5.0.8. You do not need a
-separate UTM installation. Desktop setup, graphics and performance still need
-physical iPhone testing. A successful app build does not establish a working
-Omarchy desktop.
+One development-signed app contains UTM/QEMU, the Omarchy installer, an
+ExtensionKit JIT helper using StikJIT 1.9.0, and a local packet tunnel.
+Separate StikDebug and LocalDevVPN installations are not needed by this edition.
+An installer such as iLoader still runs on the computer for installation and
+updates. App signing and Apple's system approval prompts remain necessary.
 
-## Get a build
+The target phone is an iPhone 16 Pro running iOS 27.0.1. On-device pairing
+requires iOS 27; iOS 26 can import a remote pairing file from a computer.
+This integrated edition requires physical device acceptance testing. Earlier
+USB testing established JIT memory preparation and a Linux serial login;
+the graphical desktop's inactive display remains unresolved. A successful
+build does not establish a working desktop.
 
-Open this repository's **Actions → iPhone development app** and select a
-successful run on `codex/standalone-iphone`. Download
-`iPhomarchy-development-app`. It contains an unsigned IPA, an Xcode archive
-and these instructions. The app downloads its matching, verified image from
-the development image release on first launch. `ios/image-manifest.json` pins
-the exact QCOW2 disk and part hashes. The image workflow must publish that
-release successfully before the in-app download can work. App compilation is
-independent so image publication errors do not conceal compiler results.
+## Install and update
 
-## Paid Apple Developer account
+Download `iPhomarchy-development-app` from a successful **iPhone development
+app** workflow run on `codex/integrated-iphone`. Its IPA is unsigned. Sign
+locally using an Apple Development certificate and profiles for the target
+phone, then install as an upgrade of the existing bundle. Keep the same
+bundle identifier and app group to retain the downloaded disk and user data.
+Do not uninstall the old app first.
 
-The JIT edition needs an **Apple Development** certificate with its private
-key, and development provisioning profiles that include your iPhone's UDID.
-An Apple Distribution certificate or App Store Connect API key alone is not
-sufficient. Enable Developer Mode on the phone when prompted.
+All four executable bundles need matching development profiles:
 
-Register these explicit identifiers in your developer account:
+| Bundle | Capabilities |
+| --- | --- |
+| `dev.tcballard.iphomarchy.UTM` | Existing app group, Extended Virtual Addressing, Increased Memory Limit, Network Extensions (packet tunnel), development debugging |
+| `dev.tcballard.iphomarchy.UTM.iOSHelper` | Existing app group; original QEMU tools helper |
+| `dev.tcballard.iphomarchy.UTM.JITHelper` | Development signing; bundled JIT helper |
+| `dev.tcballard.iphomarchy.UTM.LocalTunnel` | Network Extensions (packet tunnel) |
 
-- App: `dev.tcballard.iphomarchy.UTM`
-- Helper: `dev.tcballard.iphomarchy.UTM.iOSHelper`
-- App group: `group.dev.tcballard.iphomarchy.UTM`
+The existing group is `group.dev.tcballard.iphomarchy.UTM`. Sign embedded
+frameworks without application entitlements, each extension with its own
+profile, and the main app last. Never store private keys or pairing files in
+git or GitHub Actions. TestFlight signing does not supply the development
+debugging entitlement used here.
 
-Enable the app group on the app and helper. For the app, request Increased
-Memory Limit and Extended Virtual Addressing as used by upstream UTM, and
-regenerate its development profile after changing capabilities. Both profiles
-must belong to your team and include the target phone. Development signing
-must preserve `get-task-allow` so an authorised debugger can activate JIT.
+## First run
 
-Keep the `.p12`, its password and provisioning files out of git and chat. You
-can sign the unsigned IPA on your own machine using a compatible development
-signer that handles the nested iOSHelper extension. The archive is also
-provided for Xcode's development export on a hosted Mac. Each bundle needs
-its matching profile; signing only the top-level app is insufficient.
+1. Enable **Settings → Privacy & Security → Developer Mode**. Follow iOS's
+   restart/confirmation prompts if it was disabled.
+2. Open iPhomarchy → **Set up acceleration → Pair on this iPhone**. Allow
+   Local Network access. In Developer Mode settings choose **Pair with
+   iPhomarchy** and enter the code shown in the app or ongoing activity.
+   Alternatively, import this phone's remote pairing plist created with
+   iLoader/idevice. A USB-only pairing plist is insufficient.
+3. Tap **Allow local tunnel and check setup** and approve the VPN configuration.
+   Developer support downloads and mounts automatically. Pairing credentials
+   stay in the protected app container and are excluded from backups.
+4. Return home. Existing installations retain their downloaded desktop.
+   New installations tap **Download Omarchy** for the verified ~4 GB disk.
+5. Tap **Start Omarchy**. The app checks pairing, connects its local tunnel,
+   prepares developer support, attaches its bundled helper, and starts QEMU
+   only after the debugger is attached. It reports acceleration active only
+   after StikJIT finishes preparing QEMU's JIT pages.
 
-The build workflow deliberately does not request or store signing credentials.
-Once the unsigned build passes, signing automation can use repository secrets
-or remain on your own XPS. Paid membership does not itself supply the
-certificate, profiles or JIT activation.
+Keep the app open during setup. Shut Linux down before closing the app.
+The pinned emulator starts once per app process; quit and reopen the app
+before another VM start. Pairing can be repeated and developer support can
+be cleared from the setup screen after an iOS update. These actions retain
+the Linux disk.
 
-## First launch
+## Build and verification
 
-1. Open iPhomarchy and tap **Download Omarchy** on Wi-Fi. Keep the app open.
-   Setup checks storage, downloads and verifies the disk, and prepares the VM.
-   Cancellation or a failed check removes the incomplete installation.
-2. Set up [StikDebug](https://github.com/StikDebug/StikDebug) with the phone's
-   pairing file and LocalDevVPN. Use the current UTM-compatible iOS 26 JIT
-   script for **iPhomarchy**. See the
-   [current JIT guide](https://docs.sidestore.io/docs/advanced/jit).
-3. Return to the app, turn the phone sideways, and tap **Start Omarchy**.
-4. Complete Linux account setup. Use UTM's built-in touch/keyboard toolbar or
-   a Bluetooth keyboard and mouse. Shut Linux down before closing the app.
+The workflow pins Xcode 27, UTM source/dependency artifacts in
+`ios/upstream.json`, the StikJIT download/hash in
+`ios/integrated-dependencies.json`, and every Rust crate in
+`ios/Pairing/Cargo.lock`. It builds the iOS ARM64 pairing static library,
+augments a clean UTM project with `integrate-project.rb`, and archives the
+whole app. Signing remains local.
 
-Signing does not remove the iOS JIT restriction. TestFlight distribution does
-not provide the development debugging entitlement used by this edition.
-The initial target is a development-signed app on an iPhone 16 Pro running
-iOS 26.6.2; actual on-device acceptance is outstanding.
+Host tests cover installer integrity and overwrite protection, packet
+checksums and local-only filtering, launch gating/error/timeout/cancellation,
+diagnostic-path relocation without disk changes, and pairing credential
+permissions/cancellation. The Apple build checks iOS SDK integration and
+extension embedding. Phone acceptance must separately check pairing in
+Settings, VPN approval, first developer-support download, the QEMU allocation
+breakpoint, input, and visible desktop output.
 
-## Building without owning a Mac
+## Sources and notices
 
-The first standalone build targets iOS 26 and later. The GitHub workflow uses
-a hosted Mac with Xcode 27.0, because the pinned UTM source references iOS 27
-APIs behind runtime availability checks. Those features stay inactive on
-iOS 26. It pins UTM source and the
-matching prebuilt iOS dependency artifact in `ios/upstream.json`. If that
-upstream artifact expires, replace the pin with a reviewed matching source
-and dependency build; do not silently combine unrelated versions.
+Launcher additions are MIT; UTM is Apache-2.0 and bundled QEMU/graphics
+dependencies retain their licenses. StikJIT is included unmodified under
+MPL-2.0. The new pairing wrapper uses MIT-licensed idevice APIs. Notices,
+source links and locked Rust dependency licenses ship in the app.
 
-The overlay replaces only the iOS library screen, preserves UTM's VM session,
-display, input and emulator code, and changes the display name, URL scheme and
-bundle prefix. Internal UTM identifiers and source attribution are retained.
-The first build retains upstream UTM artwork; a distinct app icon is pending.
-
-The standalone app uses the downloaded disk directly, avoiding a separate ZIP
-extraction and import copy. Setup requires the disk size plus one download
-part and 2 GiB of headroom. The QCOW2 disk can grow towards its 20 GiB virtual
-capacity, so monitor free storage after setup.
-
-## Open-source notices
-
-Launcher additions are MIT licensed. UTM is Apache-2.0; QEMU and its bundled
-libraries have their own licenses, including GPL components. The upstream
-source remains available at
-https://github.com/utmapp/UTM/tree/535d6592a8bdc22b48de53703a371b80bf60d587.
-This repository publishes the exact overlay and source pins; retain bundled
-license notices and provide corresponding dependency source when distributing
-the binary. This is an independent project, not an official Omarchy release.
+LinPad's separation of acceleration status from desktop readiness informed
+the startup review. LinPad uses iSH syscall translation and a native window
+bridge rather than QEMU/Arch/Hyprland; no LinPad or Husk code was copied into
+this integration. The full Omarchy VM remains the intended desktop.

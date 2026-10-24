@@ -61,7 +61,7 @@ final class OmarchyDevicePairing: NSObject, ObservableObject, NetServiceDelegate
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         do {
-            try OmarchyPairingStore.save(Data(contentsOf: url))
+            try OmarchyPairingStore.save(OmarchyPairingFile.read(url))
             isPaired = true
             status = "Pairing file imported."
             error = nil
@@ -103,7 +103,7 @@ final class OmarchyDevicePairing: NSObject, ObservableObject, NetServiceDelegate
             }
         case "complete":
             // Validate and apply iOS file protection before marking setup complete.
-            try OmarchyPairingStore.save(Data(contentsOf: OmarchyPairingStore.url))
+            try OmarchyPairingStore.save(OmarchyPairingStore.load())
             isPaired = true
             status = "This iPhone is paired."
             finish(success: true)

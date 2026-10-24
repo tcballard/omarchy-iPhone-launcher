@@ -22,7 +22,7 @@ jobs:
           .build/installer-tests
       - name: Test acceleration safeguards
         run: |
-          swiftc -parse-as-library ios/Integrated/OmarchyJITProtocol.swift ios/Integrated/OmarchyJITLaunchGate.swift ios/Integrated/OmarchyVMPaths.swift ios/LocalTunnel/OmarchyLoopbackPacket.swift ios/tests/AccelerationTests.swift -o .build/acceleration-tests
+          swiftc -parse-as-library ios/Integrated/OmarchyJITProtocol.swift ios/Integrated/OmarchyJITLaunchGate.swift ios/Integrated/OmarchyVMPaths.swift ios/Integrated/OmarchyPairingFile.swift ios/LocalTunnel/OmarchyLoopbackPacket.swift ios/tests/AccelerationTests.swift -o .build/acceleration-tests
           .build/acceleration-tests
       - name: Test pairing lifecycle
         run: |

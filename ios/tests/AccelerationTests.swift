@@ -100,10 +100,30 @@ struct AccelerationTests {
     }
 
     static func tryData(_ url: URL) -> Data? { try? Data(contentsOf: url) }
+
+    static func pairingFileBounds() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: url) }
+        try Data("pairing fixture".utf8).write(to: url)
+        let small = try OmarchyPairingFile.read(url)
+        try check(small == Data("pairing fixture".utf8), "Pairing bytes changed")
+        try Data(repeating: 0, count: OmarchyPairingFile.maximumBytes + 1).write(to: url)
+        do {
+            _ = try OmarchyPairingFile.read(url)
+            throw FixtureError.assertion("Oversized pairing file was read")
+        } catch OmarchyAccelerationError.message {}
+        try Data().write(to: url)
+        do {
+            _ = try OmarchyPairingFile.read(url)
+            throw FixtureError.assertion("Empty pairing file was accepted")
+        } catch OmarchyAccelerationError.message {}
+    }
+
     static func main() async throws {
         try packets()
         try await launchGate()
         try relocatedPaths()
+        try pairingFileBounds()
         print("Acceleration: packet checksums/filtering, launch failure/timeout/cancellation and data-preserving path migration passed.")
     }
 }

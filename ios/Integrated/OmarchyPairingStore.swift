@@ -9,7 +9,7 @@ enum OmarchyPairingStore {
     }
 
     static func validated(_ bytes: Data) throws -> Data {
-        guard bytes.count <= 2_000_000,
+        guard bytes.count <= OmarchyPairingFile.maximumBytes,
               let record = try PropertyListSerialization.propertyList(from: bytes, format: nil) as? [String: Any],
               let privateKey = record["private_key"] as? Data, privateKey.count == 32,
               let publicKey = record["public_key"] as? Data, publicKey.count == 32,
@@ -24,7 +24,7 @@ enum OmarchyPairingStore {
         return bytes
     }
 
-    static func load() throws -> Data { try validated(Data(contentsOf: url)) }
+    static func load() throws -> Data { try validated(OmarchyPairingFile.read(url)) }
     static var isAvailable: Bool { (try? load()) != nil }
 
     static func prepareDirectory() throws {

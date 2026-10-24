@@ -3,7 +3,8 @@ iPhomarchy integrated development edition
 The launcher additions, pairing C ABI, and local tunnel provider are original
 MIT-licensed source in this repository. Copyright 2026 Tom Ballard.
 
-StikJIT 1.9.0 is included unmodified under MPL-2.0.
+StikJIT 1.9.0 library code is included unchanged under MPL-2.0.
+The packager supplies its missing framework metadata; see StikJIT-bundle-metadata.txt.
 Source: https://github.com/StikDebug/StikJIT/tree/32287268fa5824f9edce4cb359f5833ce0cf7b00
 License: StikJIT-MPL-2.0.txt
 

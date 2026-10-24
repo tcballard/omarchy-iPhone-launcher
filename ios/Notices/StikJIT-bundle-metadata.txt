@@ -1,0 +1,10 @@
+StikJIT 1.9.0 packaging note
+
+The upstream release's iOS framework omits its own Info.plist. iPhomarchy's
+packager supplies that bundle metadata, including its executable name,
+version, framework identifier and deployment target read from LC_BUILD_VERSION.
+The StikJIT library code and bundled JavaScript are unchanged. Ordinary local
+development signing replaces the binary's code-signature data.
+
+Metadata generator (MIT): ios/scripts/complete-framework-metadata.py
+Library source and MPL-2.0 license: see README.txt and StikJIT-MPL-2.0.txt.

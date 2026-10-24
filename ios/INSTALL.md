@@ -71,6 +71,11 @@ The workflow pins Xcode 27, UTM source/dependency artifacts in
 augments a clean UTM project with `integrate-project.rb`, and archives the
 whole app. Signing remains local.
 
+The StikJIT release omits the framework's Info.plist. Packaging supplies that
+metadata before archiving the unsigned deliverables, deriving the deployment
+target from the library's Mach-O header. Library code and JavaScript remain
+unchanged. Framework resources and metadata must be sealed during signing.
+
 Host tests cover installer integrity and overwrite protection, packet
 checksums and local-only filtering, launch gating/error/timeout/cancellation,
 diagnostic-path relocation without disk changes, and pairing credential
@@ -82,7 +87,7 @@ breakpoint, input, and visible desktop output.
 ## Sources and notices
 
 Launcher additions are MIT; UTM is Apache-2.0 and bundled QEMU/graphics
-dependencies retain their licenses. StikJIT is included unmodified under
+dependencies retain their licenses. StikJIT library code is used unchanged under
 MPL-2.0. The new pairing wrapper uses MIT-licensed idevice APIs. Notices,
 source links and locked Rust dependency licenses ship in the app.
 

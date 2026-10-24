@@ -49,7 +49,7 @@ struct OmarchyAccelerationView: View {
             .fileImporter(isPresented: $importing, allowedContentTypes: [.item]) { result in
                 switch result {
                 case .success(let url): acceleration.pairing.importFile(url)
-                case .failure: break // The system file picker already reports provider errors.
+                case .failure(let error): acceleration.pairing.importFailed(error)
                 }
             }
         }

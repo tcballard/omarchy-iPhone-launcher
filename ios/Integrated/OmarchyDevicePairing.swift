@@ -37,9 +37,9 @@ final class OmarchyDevicePairing: NSObject, ObservableObject, NetServiceDelegate
             error = nil
             code = nil
             status = "Starting pairing…"
-            let identityKey = "omarchy.pairing.identity"
-            let identity = UserDefaults.standard.string(forKey: identityKey) ?? UUID().uuidString
-            UserDefaults.standard.set(identity, forKey: identityKey)
+            // Fresh signing keys need a fresh host identity; reusing an old
+            // identity could make iOS attempt pair-verify against its old key.
+            let identity = UUID().uuidString
             handle = omarchy_pair_start("iPhomarchy", "iPhomarchy-" + identity, OmarchyPairingStore.url.path)
             guard handle != 0 else { throw OmarchyAccelerationError.message("The pairing service could not start. Please retry.") }
             isPairing = true
@@ -71,6 +71,11 @@ final class OmarchyDevicePairing: NSObject, ObservableObject, NetServiceDelegate
     func cancel() {
         status = "Pairing cancelled."
         finish(success: false)
+    }
+
+    func importFailed(_ failure: Error) {
+        if let failure = failure as? CocoaError, failure.code == .userCancelled { return }
+        error = failure.localizedDescription
     }
 
     private func poll() throws {

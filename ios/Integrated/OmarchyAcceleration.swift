@@ -1,5 +1,6 @@
 // Copyright 2026 Tom Ballard. MIT License.
 import SwiftUI
+import Combine
 
 @MainActor
 final class OmarchyAcceleration: ObservableObject {
@@ -11,6 +12,13 @@ final class OmarchyAcceleration: ObservableObject {
     @Published private(set) var error: String?
     private var task: Task<Void, Never>?
     private var attemptedVM = false
+    private var pairingObservation: AnyCancellable?
+
+    private init() {
+        pairingObservation = pairing.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
+    }
 
     private func preflight() throws -> Data {
         guard omarchy_development_signed() else {

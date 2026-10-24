@@ -47,7 +47,9 @@ final class OmarchyJITConnection: NSObject, OmarchyJITProgressProtocol {
         }
         let configuration = AppExtensionProcess.Configuration(appExtensionIdentity: identity) {}
         let process = try await AppExtensionProcess(configuration: configuration)
-        let connection = try process.makeXPCConnection()
+        let connection: NSXPCConnection
+        do { connection = try process.makeXPCConnection() }
+        catch { process.invalidate(); throw error }
         let helper = OmarchyJITConnection(connection: connection, stop: { process.invalidate() }, progress: progress)
         connection.remoteObjectInterface = NSXPCInterface(with: OmarchyJITProtocol.self)
         connection.exportedInterface = NSXPCInterface(with: OmarchyJITProgressProtocol.self)
@@ -57,7 +59,10 @@ final class OmarchyJITConnection: NSObject, OmarchyJITProgressProtocol {
     }
 
     nonisolated func reportProgress(_ message: String) {
-        Task { @MainActor [weak self] in self?.progress(message) }
+        Task { @MainActor [weak self] in
+            guard let self, !self.stopped else { return }
+            self.progress(message)
+        }
     }
 
     func perform(_ request: OmarchyJITRequest) async throws {

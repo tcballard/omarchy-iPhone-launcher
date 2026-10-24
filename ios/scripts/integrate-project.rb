@@ -100,9 +100,12 @@ end
 sdk_framework(project, vpn, 'NetworkExtension')
 sdk_framework(project, app, 'NetworkExtension')
 sdk_framework(project, app, 'BackgroundTasks')
+sdk_framework(project, app, 'Security')
 app.frameworks_build_phase.add_file_reference(group.new_file('Dependencies/libomarchy_pairing.a'))
 app.build_configurations.each do |configuration|
   configuration.build_settings['HEADER_SEARCH_PATHS'] = ['$(inherited)', '$(SRCROOT)/Omarchy/Pairing/include']
+  configuration.build_settings['LIBRARY_SEARCH_PATHS'] = ['$(inherited)', '$(SRCROOT)/Omarchy/Dependencies']
+  configuration.build_settings['OTHER_LDFLAGS'] = ['$(inherited)', '-lresolv', '-liconv']
   configuration.build_settings['EX_ENABLE_EXTENSION_POINT_GENERATION'] = 'YES'
   configuration.build_settings['MARKETING_VERSION'] = '0.2.0'
   configuration.build_settings['CURRENT_PROJECT_VERSION'] = number

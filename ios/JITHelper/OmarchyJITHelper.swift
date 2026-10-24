@@ -58,6 +58,8 @@ private final class OmarchyJITService: NSObject, OmarchyJITProtocol {
                     case .ready: break
                     case .unreachable(let reason), .preparationFailed(let reason):
                         throw OmarchyAccelerationError.message(reason)
+                    @unknown default:
+                        throw OmarchyAccelerationError.message("Developer support returned an unsupported status. Update iPhomarchy before starting the desktop.")
                     }
                 case .enable:
                     guard request.targetPID > 0 else { throw OmarchyAccelerationError.message("Invalid app process.") }

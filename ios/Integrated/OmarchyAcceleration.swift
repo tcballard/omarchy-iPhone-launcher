@@ -58,6 +58,8 @@ final class OmarchyAcceleration: ObservableObject {
             }
             let pairing = try self.preflight()
             try OmarchyVMPaths.relocateDiagnosticPaths(at: machine.pathUrl)
+            try machine.load()
+            try machine.wrapped?.reload(from: nil)
             try await self.tunnel.connect()
             let helper = try await self.helper()
             defer { helper.invalidate() }
